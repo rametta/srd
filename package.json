@@ -1,9 +1,10 @@
 {
   "name": "srd",
-  "module": "srd",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Static Land Compliant Remote Data Type in TypeScript",
-  "main": "dist/index.js",
+  "main": "dist/bundle.cjs.js",
+  "module": "dist/bundle.esm.js",
+  "browser": "dist/bundle.umd.js",
   "types": "dist/index.d.ts",
   "author": "Jason Rametta",
   "license": "BSD-3-Clause",
