@@ -1,6 +1,7 @@
 [![npm](https://img.shields.io/npm/v/srd.svg)](http://npm.im/srd)
 [![SRD](https://badgen.net/bundlephobia/minzip/srd)](https://bundlephobia.com/result?p=srd)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](https://opensource.org/licenses/BSD-3-Clause)
+![License](https://img.shields.io/badge/output-esm%20%7C%20cjs%20%7C%20umd-blue)
 
 # 🚀 Simple Remote Data
 
@@ -23,6 +24,8 @@ or if you prefer npm
 ```sh
 npm i srd
 ```
+
+SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://github.com/umdjs/umd) and [ESM](https://webpack.js.org/guides/ecma-script-modules/) bundle outputs.
 
 ## Documentation
 
