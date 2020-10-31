@@ -154,14 +154,6 @@ interface RemoteData<F extends URIS2> {
   readonly match: <E, A, G, H, I, J>(mapper: Matcher<E, A, G, H, I, J>, fa: RD<E, A>) => G | H | I | J
 
   /**
-   * Append 2 Remote Data types together. They must both be `Success`, otherwise
-   * they will be returned unchanged.
-   * @param fa Remote Data of any variant.
-   * @param fb Remote Data of any variant.
-   */
-  readonly concat: <E, A, B>(fa: RD<E, A>, fb: RD<E, B>) => RD<E, [A, B]>
-
-  /**
    * Check if the rd is of type Success.
    * @param rd Remote Data to check.
    */
@@ -220,12 +212,6 @@ export const SRD: RemoteData<URI> = {
   alt: (def, rd) => isSuccess(rd) ? rd : def,
   of: success,
   equals: (a, b) => a.tag === b.tag,
-  concat: (fa, fb) =>
-    isSuccess(fa)
-      ? isSuccess(fb)
-          ? success([fa.data, fb.data])
-          : fb
-      : fa,
   unwrap: (def, f, fa) => isSuccess(fa) ? f(fa.data) : def,
   match: (mapper, fa) =>
     isSuccess(fa)
