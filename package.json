@@ -1,6 +1,6 @@
 {
   "name": "srd",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Static Land Compliant Remote Data Type in TypeScript",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
