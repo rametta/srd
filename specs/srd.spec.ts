@@ -238,4 +238,149 @@ describe('SRD - Static Land Compliancy', () => {
     })
 
   })
+
+  describe('Utils', () => {
+
+    describe('match', () => {
+
+      const mapper = {
+        notAsked: jest.fn(),
+        loading: jest.fn(),
+        failure: jest.fn(),
+        success: jest.fn()
+      }
+
+      beforeEach(() => jest.resetAllMocks())
+
+      it('notAsked', () => {
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+        SRD.match(mapper, rd1)
+        expect(mapper.notAsked).toHaveBeenCalledTimes(1)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+      })
+
+      it('loading', () => {
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+        SRD.match(mapper, rd2)
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(1)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+      })
+
+      it('failure', () => {
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+        SRD.match(mapper, rd3)
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledWith('msg')
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+      })
+
+      it('success', () => {
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledTimes(0)
+        SRD.match(mapper, rd4)
+        expect(mapper.notAsked).toHaveBeenCalledTimes(0)
+        expect(mapper.loading).toHaveBeenCalledTimes(0)
+        expect(mapper.failure).toHaveBeenCalledTimes(0)
+        expect(mapper.success).toHaveBeenCalledWith(5)
+      })
+
+    })
+
+    describe('map2', () => {
+
+      it('notAsked', () => {
+        expect(SRD.map2((a, b) => a + b, rd1, rd4)).toEqual(rd1)
+      })
+
+      it('loading', () => {
+        expect(SRD.map2((a, b) => a + b, rd2, rd4)).toEqual(rd2)
+      })
+
+      it('failure', () => {
+        expect(SRD.map2((a, b) => a + b, rd3, rd4)).toEqual(rd3)
+      })
+
+      it('success', () => {
+        expect(SRD.map2((a, b) => a + b, rd4, rd4)).toEqual(success(10))
+      })
+
+    })
+
+    describe('map3', () => {
+
+      it('notAsked', () => {
+        expect(SRD.map3((a, b, c) => a + b + c, rd1, rd4, rd4)).toEqual(rd1)
+      })
+
+      it('loading', () => {
+        expect(SRD.map3((a, b, c) => a + b + c, rd2, rd4, rd4)).toEqual(rd2)
+      })
+
+      it('failure', () => {
+        expect(SRD.map3((a, b, c) => a + b + c, rd3, rd4, rd4)).toEqual(rd3)
+      })
+
+      it('success', () => {
+        expect(SRD.map3((a, b, c) => a + b + c, rd4, rd4, rd4)).toEqual(success(15))
+      })
+
+    })
+
+    describe('mapFailure', () => {
+
+      it('notAsked', () => {
+        expect(SRD.mapFailure((e) => e + 'hello', rd1)).toEqual(rd1)
+      })
+
+      it('loading', () => {
+        expect(SRD.mapFailure((e) => e + 'hello', rd2)).toEqual(rd2)
+      })
+
+      it('failure', () => {
+        expect(SRD.mapFailure((e) => e + 'hello', rd3)).toEqual(failure('msghello'))
+      })
+
+      it('success', () => {
+        expect(SRD.mapFailure((e) => e + 'hello', rd4)).toEqual(rd4)
+      })
+
+    })
+
+    describe('unwrap', () => {
+
+      it('notAsked', () => {
+        expect(SRD.unwrap(4, f, rd1)).toEqual(4)
+      })
+
+      it('loading', () => {
+        expect(SRD.unwrap(4, f, rd2)).toEqual(4)
+      })
+
+      it('failure', () => {
+        expect(SRD.unwrap(4, f, rd3)).toEqual(4)
+      })
+
+      it('success', () => {
+        expect(SRD.unwrap(4, f, rd4)).toEqual(10)
+      })
+
+    })
+
+  })
 })
