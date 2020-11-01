@@ -187,6 +187,21 @@ describe('SRD - Static Land Compliancy', () => {
 
   })
 
+  describe('Apply', () => {
+
+    describe('ap', () => {
+
+      it('composition', () => {
+        const mappper = SRD.map(f => (g: typeof f) => (x: number) => f(g(x)), success(f))
+        const a = SRD.ap(SRD.ap(mappper, success(f)), success(4))
+        const b = SRD.ap(success(f), SRD.ap(success(f), success(4)))
+        expect(a).toEqual(b)
+      })
+
+    })
+
+  })
+
   describe('Applicative', () => {
 
     describe('of', () => {
