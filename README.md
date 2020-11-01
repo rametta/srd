@@ -27,12 +27,6 @@ npm i srd
 
 SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://github.com/umdjs/umd) and [ESM](https://webpack.js.org/guides/ecma-script-modules/) bundle outputs.
 
-## Documentation
-
-View the [full docs here](docs.md), with in-depth explanations and examples of all `SRD` features.
-
-Below is the most common use case for any Remote Data type.
-
 ## React Example
 
 The following is a common use case in [React](https://reactjs.org/). Fetching data from an API, showing it on screen and handling initial, loading, and error states.
@@ -102,18 +96,181 @@ const App = () => {
       .catch((err) => setRd(failure(err)))
   }, [])
 
-  return SRD.match(
-    {
-      notAsked: () => <div>Empty</div>,
-      loading: () => <div>Loading...</div>,
-      failure: (err) => <div>{err}</div>,
-      success: (data) => <div>{data}</div>,
-    },
-    rd
-  )
+  return SRD.match({
+    notAsked: () => <div>Empty</div>,
+    loading: () => <div>Loading...</div>,
+    failure: (err) => <div>{err}</div>,
+    success: (data) => <div>{data}</div>,
+  }, rd)
 }
 ```
 
 That's it! Very easy to use, and 90% of the time that's everything you will need.
 
-But `SRD` also provides a lot of extra functionality for data manipulation, React is not necessary to use `SRD`. [Check out our docs](docs.md) for full examples of every feature!
+## Documentation
+
+`SRD` comes with many of the Static Land functions that all know and love. Here is a breakdown of all the supported algebras:
+
+### Setoid
+
+For comparing 2 SRD's to see if they are the same type.
+
+> *Note: This only compares the data types and not the inner value. So `Success(5) != Failure(5)` but `Success(5) == Success(80)`.
+
+#### Signature
+
+```ts
+Setoid<T> {
+  equals: (T, T) => boolean
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, notAsked } from 'SRD'
+
+SRD.equals(success(5), notAsked()) // false
+```
+
+### Functor
+
+Allowing the type to be `mapped` over by the function provided.
+
+#### Signature
+
+```ts
+Functor<T> {
+  map: <a, b>(a => b, T<a>) => T<b>
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, loading } from 'SRD'
+
+const double = x => x * 2
+const rd1 = success(4)
+const rd2 = loading()
+
+SRD.map(double, rd1) // success(8)
+SRD.map(double, rd2) // loading()
+```
+
+### Bifunctor
+
+Allowing the type to be `bimapped` over by the functions provided. Common usecase is for when you need to `map` and `mapFailure` in one shot.
+
+#### Signature
+
+```ts
+Bifunctor<T> {
+  bimap: <a, b, c, d>(a => b, c => d, T<a, c>) => T<b, d>
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, failure } from 'SRD'
+
+const double = x => x * 2
+const formatErr = err => `Something went wrong: ${err}`
+const rd1 = success(4)
+const rd2 = failure('404 not found')
+
+SRD.bimap(formatErr, double, rd1) // success(8)
+SRD.bimap(formatErr, double, rd2) // failure('Something went wrong: 404 not found')
+```
+
+### Apply
+
+Apply a function wrapped in a SRD to a value wrapped in a SRD.
+
+#### Signature
+
+```ts
+Apply<T> {
+  ap: <a, b>(T<a => b>, T<a>) => T<b>
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, failure } from 'SRD'
+
+const double = x => x * 2
+const formatErr = err => `Something went wrong: ${err}`
+const rd1 = success(4)
+const rd2 = failure('404 not found')
+
+SRD.ap(success(double), rd1)) // success(8)
+SRD.ap(success(double), rd2)) // failure('404 not found')
+```
+
+### Applicative
+
+Always returns a `success` with whatever value is passed within.
+
+#### Signature
+
+```ts
+Applicative<T> {
+  of: <a>(a) => T<a>
+}
+```
+
+#### Example
+
+```ts
+import { SRD } from 'SRD'
+
+SRD.of(4) // success(4)
+```
+
+### Alt
+
+Provide a default value to be returned when an `SRD` is not a `success` type.
+
+#### Signature
+
+```ts
+Alt<T> {
+  alt: <a>(T<a>, T<a>) => T<a>
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, loading, notAsked } from 'SRD'
+
+SRD.alt(success(4), notAsked()) // success(4)
+SRD.alt(success(50), success(4)) // success(4)
+SRD.alt(loading(), notAsked()) // loading()
+SRD.alt(loading(), success(4)) // success(4)
+```
+
+### Chain
+
+Similar to `map` but the callback must return another `SRD`.
+
+#### Signature
+
+```ts
+Chain<T> {
+  chain: <a, b>(a => T<b>, T<a>) => T<b>
+}
+```
+
+#### Example
+
+```ts
+import { SRD, success, failure, notAsked } from 'SRD'
+
+SRD.chain(x => success(x * 2), success(4)) // success(8)
+SRD.chain(x => success(x * 2), notAsked()) // notAsked()
+SRD.chain(x => failure('failed'), success(4)) // failure('failed')
+```
