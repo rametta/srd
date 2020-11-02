@@ -147,6 +147,16 @@ interface RemoteData<F extends URIS2> {
   readonly unwrap: <E, A, B>(def: B, f: (a: A) => B, fa: RD<E, A>) => B
 
   /**
+   * Similar to `unwrap` but instead of taking a default value, it takes a thunk.
+   * Returns the default thunk called if the `RemoteData` is something other than a `Success a`. 
+   * If the `RemoteData` is `Success a`, apply the function on `a` and return the `b`.
+   * @param def Function to call if fa is anything other than `Success`
+   * @param f Function to call if fa is a `Success`.
+   * @param fa Remote Data of any variant.
+   */
+  readonly unpack: <E, A, B>(def: () => B, f: (a: A) => B, fa: RD<E, A>) => B
+
+  /**
    * Utility function to call a function for the specific RemoteData type.
    * @param mapper An object with 4 keys with values that are functions.
    * @param fa The Remote Data to match against.
@@ -213,6 +223,7 @@ export const SRD: RemoteData<URI> = {
   of: success,
   equals: (a, b) => a.tag === b.tag,
   unwrap: (def, f, fa) => isSuccess(fa) ? f(fa.data) : def,
+  unpack: (def, f, fa) => isSuccess(fa) ? f(fa.data) : def(),
   match: (mapper, fa) =>
     isSuccess(fa)
       ? mapper.success(fa.data)
