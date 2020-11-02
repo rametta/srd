@@ -117,15 +117,9 @@ For comparing 2 SRD's to see if they are the same type.
 
 > *Note: This only compares the data types and not the inner value. So `Success(5) != Failure(5)` but `Success(5) == Success(80)`.
 
-#### Signature
-
-```ts
-Setoid<T> {
-  equals: (T, T) => boolean
-}
+```hs
+equals :: (RD e a, RD e b) -> boolean
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, notAsked } from 'SRD'
@@ -137,15 +131,9 @@ SRD.equals(success(5), notAsked()) // false
 
 Allowing the type to be `mapped` over by the function provided.
 
-#### Signature
-
-```ts
-Functor<T> {
-  map: <a, b>(a => b, T<a>) => T<b>
-}
+```hs
+map :: (a -> b, RD e a) -> RD e b
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, loading } from 'SRD'
@@ -162,15 +150,9 @@ SRD.map(double, rd2) // loading()
 
 Allowing the type to be `bimapped` over by the functions provided. Common usecase is for when you need to `map` and `mapFailure` in one shot.
 
-#### Signature
-
-```ts
-Bifunctor<T> {
-  bimap: <a, b, c, d>(a => b, c => d, T<a, c>) => T<b, d>
-}
+```hs
+bimap :: (e -> b, a -> c, RD e a) -> RD b c
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure } from 'SRD'
@@ -188,15 +170,9 @@ SRD.bimap(formatErr, double, rd2) // failure('Something went wrong: 404 not foun
 
 Apply a function wrapped in a SRD to a value wrapped in a SRD.
 
-#### Signature
-
-```ts
-Apply<T> {
-  ap: <a, b>(T<a => b>, T<a>) => T<b>
-}
+```hs
+ap :: (RD e (a -> b), RD e a) -> RD e b
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure } from 'SRD'
@@ -214,15 +190,9 @@ SRD.ap(success(double), rd2)) // failure('404 not found')
 
 Always returns a `success` with whatever value is passed within.
 
-#### Signature
-
-```ts
-Applicative<T> {
-  of: <a>(a) => T<a>
-}
+```hs
+of :: a -> RD e a
 ```
-
-#### Example
 
 ```ts
 import { SRD } from 'SRD'
@@ -234,44 +204,32 @@ SRD.of(4) // success(4)
 
 Provide a default value to be returned when an `SRD` is not a `success` type.
 
-#### Signature
-
-```ts
-Alt<T> {
-  alt: <a>(T<a>, T<a>) => T<a>
-}
+```hs
+alt :: (RD e a, RD e a) -> RD e a
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, loading, notAsked } from 'SRD'
 
-SRD.alt(success(4), notAsked()) // success(4)
+SRD.alt(success(4), notAsked())  // success(4)
 SRD.alt(success(50), success(4)) // success(4)
-SRD.alt(loading(), notAsked()) // loading()
-SRD.alt(loading(), success(4)) // success(4)
+SRD.alt(loading(), notAsked())   // loading()
+SRD.alt(loading(), success(4))   // success(4)
 ```
 
 ### Chain
 
 Similar to `map` but the callback must return another `SRD`.
 
-#### Signature
-
-```ts
-Chain<T> {
-  chain: <a, b>(a => T<b>, T<a>) => T<b>
-}
+```hs
+chain :: (a -> RD e b, RD e a) -> RD e b
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure, notAsked } from 'SRD'
 
-SRD.chain(x => success(x * 2), success(4)) // success(8)
-SRD.chain(x => success(x * 2), notAsked()) // notAsked()
+SRD.chain(x => success(x * 2), success(4))    // success(8)
+SRD.chain(x => success(x * 2), notAsked())    // notAsked()
 SRD.chain(x => failure('failed'), success(4)) // failure('failed')
 ```
 
@@ -279,22 +237,16 @@ SRD.chain(x => failure('failed'), success(4)) // failure('failed')
 
 Provide a mapper object for each SRD type and whichever type the SRD is - that function will run.
 
-#### Signature
+```hs
+data Matcher e a ::
+  { notAsked :: () -> c
+  , loading :: () -> c
+  , failure :: e -> c
+  , success :: a -> c
+  }
 
-```ts
-Matcher<E, A, G, H, I, J> {
-  notAsked: () => G
-  loading: () => H
-  failure: (e: E) => I
-  success: (a: A) => J
-}
-
-Match<T> {
-  match: <E, A, G, H, I, J>(mapper: Matcher<E, A, G, H, I, J>, fa: T<E, A>) => G | H | I | J
-}
+match :: (Matcher e a -> c, RD e a) -> c
 ```
-
-#### Example
 
 ```ts
 import { SRD, success } from 'SRD'
@@ -311,20 +263,14 @@ SRD.match({
 
 Similar to `map` but instead of running the callback on a `success`, it calls it on a `failure`.
 
-#### Signature
-
-```ts
-MapFailure<T> {
-  mapFailure: <E, A, B>(f: (e: E) => B, fa: T<E, A>) => T<B, A>
-}
+```hs
+mapFailure :: (e -> b, RD e a) -> RD b a
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure } from 'SRD'
 
-SRD.mapFailure(x => `hello ${x}`, success(4)) // success(4)
+SRD.mapFailure(x => `hello ${x}`, success(4))     // success(4)
 SRD.mapFailure(x => `hello ${x}`, failure('bob')) // failure('hello bob')
 ```
 
@@ -332,20 +278,14 @@ SRD.mapFailure(x => `hello ${x}`, failure('bob')) // failure('hello bob')
 
 Similar to `map` but takes 2 `SRD's` instead of one, and if both are a success, the provided callback will be called.
 
-#### Signature
-
-```ts
-Map2<T> {
-  map2: <E, A, B, C>(f: (a: A, b: B) => C, fa: T<E, A>, fb: T<E, B>) => T<E, C>
-}
+```hs
+map2 :: (a b -> c, RD e a, RD e b) -> RD e c
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure } from 'SRD'
 
-SRD.map2((x, y) => x + y, success(4), success(8)) // success(12)
+SRD.map2((x, y) => x + y, success(4), success(8))     // success(12)
 SRD.map2((x, y) => x + y, failure('bob'), success(8)) // failure('bob')
 SRD.map2((x, y) => x + y, success(8), failure('bob')) // failure('bob')
 ```
@@ -354,39 +294,27 @@ SRD.map2((x, y) => x + y, success(8), failure('bob')) // failure('bob')
 
 Similar to `map2` but takes 3 `SRD's` instead of two, and if all three are a success, the provided callback will be called.
 
-#### Signature
-
-```ts
-Map3<T> {
-  map3: <E, A, B, C, D>(f: (a: A, b: B, c: C) => D, fa: T<E, A>, fb: T<E, B>, fc: T<E, C>) => T<E, D>
-}
+```hs
+map3 :: (a b c -> d, RD e a, RD e b, RD e c) -> RD e d
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, failure, notAsked, loading } from 'SRD'
 
 const add3 = (x, y, z) = x + y + z
 
-SRD.map3(add3, success(4), success(8), success(10)) // success(22)
+SRD.map3(add3, success(4), success(8), success(10))    // success(22)
 SRD.map3(add3, failure('bob'), success(8), notAsked()) // failure('bob')
-SRD.map3(add3, success(8), loading(), failure('bob')) // loading()
+SRD.map3(add3, success(8), loading(), failure('bob'))  // loading()
 ```
 
 ### Unwrap
 
 Similar to `alt`, but unwraps the SRD from it's type and runs the callback on it. If the SRD is a success the inner value is passed to the callback and returned, any other value the default is returned.
 
-#### Signature
-
-```ts
-Unwrap<T> {
-  unwrap: <E, A, B>(def: B, f: (a: A) => B, fa: T<E, A>) => B
-}
+```hs
+unwrap :: (b, a -> b, RD e a) -> b
 ```
-
-#### Example
 
 ```ts
 import { SRD, success, notAsked, loading } from 'SRD'
@@ -395,5 +323,23 @@ const double = x => x * 2
 
 SRD.unwrap(6, double, success(8)) // 16
 SRD.unwrap(6, double, notAsked()) // 6
-SRD.unwrap(6, double, loading()) // 6
+SRD.unwrap(6, double, loading())  // 6
+```
+
+### Unpack
+
+Similar to `unwrap`, but takes a default thunk instead of a default value.
+
+```hs
+unpack :: (() -> b, a -> b, RD e a) -> b
+```
+
+```ts
+import { SRD, success, notAsked, loading } from 'SRD'
+
+const double = x => x * 2
+
+SRD.unpack(() => 6, double, success(8)) // 16
+SRD.unpack(() => 6, double, notAsked()) // 6
+SRD.unpack(() => 6, double, loading())  // 6
 ```
