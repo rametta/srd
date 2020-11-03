@@ -29,7 +29,7 @@ SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://gith
 
 ## React Example
 
-The following is a common use case in [React](https://reactjs.org/). Fetching data from an API, showing it on screen and handling initial, loading, and error states.
+The following is a common use case in [React](https://reactjs.org/). Fetching data async, showing it on screen and handling initial, loading, and error states.
 
 Without `SRD`, we would need something like this:
 
@@ -109,7 +109,7 @@ That's it! Very easy to use, and 90% of the time that's everything you will need
 
 ## Documentation
 
-`SRD` comes with many of the Static Land functions that all know and love. Here is a breakdown of all the supported algebras:
+`SRD` comes with many of the Static Land functions that we all know and love. Here is a breakdown of all the supported algebras and utilities:
 
 ### Setoid
 
