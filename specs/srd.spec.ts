@@ -418,5 +418,25 @@ describe('SRD - Static Land Compliancy', () => {
 
     })
 
+    describe('withDefault', () => {
+
+      it('notAsked', () => {
+        expect(SRD.withDefault(4, rd1)).toEqual(4)
+      })
+
+      it('loading', () => {
+        expect(SRD.withDefault(4, rd2)).toEqual(4)
+      })
+
+      it('failure', () => {
+        expect(SRD.withDefault(4, rd3)).toEqual(4)
+      })
+
+      it('success', () => {
+        expect(SRD.withDefault(4, rd4)).toEqual(5)
+      })
+
+    })
+
   })
 })

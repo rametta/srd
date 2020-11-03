@@ -373,3 +373,19 @@ SRD.unpack(() => 6, double, success(8)) // 16
 SRD.unpack(() => 6, double, notAsked()) // 6
 SRD.unpack(() => 6, double, loading())  // 6
 ```
+
+### WithDefault
+
+Takes a default value and an SRD. If the SRD is a success then the inner value is returned, otherwise the default value is returned.
+
+```hs
+withDefault :: (a, RD e a) -> a
+```
+
+```ts
+import { SRD, success, notAsked, loading } from 'SRD'
+
+SRD.withDefault(4, success(8)) // 8
+SRD.withDefault(4, notAsked()) // 4
+SRD.withDefault(4, loading())  // 4
+```
