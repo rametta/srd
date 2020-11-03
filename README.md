@@ -27,7 +27,9 @@ npm i srd
 
 SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://github.com/umdjs/umd) and [ESM](https://webpack.js.org/guides/ecma-script-modules/) bundle outputs.
 
-## React Example
+## Examples
+
+### React Example
 
 The following is a common use case in [React](https://reactjs.org/). Fetching data async, showing it on screen and handling initial, loading, and error states.
 
@@ -106,6 +108,34 @@ const App = () => {
 ```
 
 That's it! Very easy to use, and 90% of the time that's everything you will need.
+
+### Typescript React Example
+
+SRD works even better with Typescript! Declare your RD type once and have typescript powerfully infer it everywhere! Like magic!
+
+```tsx
+import React, { useState, useEffect } from 'react'
+import { SRD, RD, notAsked, loading, failure, success } from 'srd'
+import { Person, getPerson } from './people'
+
+const App = () => {
+  const [rd, setRd] = useState<RD<string, Person>>(notAsked())
+
+  useEffect(() => {
+    setRd(loading())
+    getPerson(123)
+      .then((person) => setRd(success(person)))
+      .catch((err) => setRd(failure(err)))
+  }, [])
+
+  return SRD.match({
+    notAsked: () => <div>Empty</div>,
+    loading: () => <div>Loading...</div>,
+    failure: (msg) => <div>{msg}</div>,
+    success: (person) => <div>{person}</div>,
+  }, rd)
+}
+```
 
 ## Documentation
 
