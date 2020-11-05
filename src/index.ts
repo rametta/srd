@@ -62,6 +62,8 @@ interface RemoteData<F extends URIS2> {
    * Apply a function to a Success type. Any other type will just return the RemoteData unchanged.
    * @param f Function to call with the data inside the Success.
    * @param fa The RemoteData that can be any variant.
+   * @example
+   * SRD.map(x => x * 2, success(4)) // success(8)
    */
   readonly map: <E, A, B>(f: (a: A) => B, fa: RD<E, A>) => RD<E, B>
 
@@ -71,6 +73,8 @@ interface RemoteData<F extends URIS2> {
    * @param f Function to call with the data inside the both Successes.
    * @param fa RemoteData that can be any variant.
    * @param fb RemoteData that can be any variant.
+   * @example
+   * SRD.map2((x, y) => x + y, success(4), success(2)) // success(6)
    */
   readonly map2: <E, A, B, C>(f: (a: A, b: B) => C, fa: RD<E, A>, fb: RD<E, B>) => RD<E, C>
 
@@ -81,6 +85,8 @@ interface RemoteData<F extends URIS2> {
    * @param fa RemoteData that can be any variant.
    * @param fb RemoteData that can be any variant.
    * @param fc RemoteData that can be any variant.
+   * @example
+   * SRD.map3((x, y, z) => x + y + z, success(4), success(2), success(10)) // success(16)
    */
   readonly map3: <E, A, B, C, D>(f: (a: A, b: B, c: C) => D, fa: RD<E, A>, fb: RD<E, B>, fc: RD<E, C>) => RD<E, D>
 
@@ -88,6 +94,8 @@ interface RemoteData<F extends URIS2> {
    * Apply a function to a Failure type. Any other type will just return the RemoteData unchanged.
    * @param f Function to call with the data inside the Failure.
    * @param fa The RemoteData that can be any variant.
+   * @example
+   * SRD.mapFailure(x => x * 2, failure(4)) // failure(8)
    */
   readonly mapFailure: <E, A, B>(f: (e: E) => B, fa: RD<E, A>) => RD<B, A>
 
@@ -95,6 +103,8 @@ interface RemoteData<F extends URIS2> {
    * Apply a function to a Success type. Any other type will just return the RemoteData unchanged.
    * @param f Function to call with the data inside the Success. Must return a Remote Data type.
    * @param fa The RemoteData that can be any variant.
+   * @example
+   * SRD.chain(x => success(x * 2), success(4)) // success(8)
    */
   readonly chain: <E, A, B>(f: (a: A) => RD<E, B>, fa: RD<E, A>) => RD<E, B>
 
@@ -104,6 +114,10 @@ interface RemoteData<F extends URIS2> {
    * @param failureFn Will run if `rd` is a Failure.
    * @param successFn Will run if `rd` is a Success.
    * @param rd The Remote Data to check against.
+   * @example
+   * SRD.bimap(x => `Err: ${x}`, x => x * 2, success(4)) // success(8)
+   * @example
+   * SRD.bimap(x => `Err: ${x}`, x => x * 2, failure('not found')) // failure('Err: not found')
    */
   readonly bimap: <A, B, C, D>(failureFn: (a: A) => B, successFn: (c: C) => D, rd: RD<A, C>) => RD<B, D>
 
@@ -112,6 +126,8 @@ interface RemoteData<F extends URIS2> {
    * If either are not a Success then that type is returned unchanged.
    * @param rdFn The function that is wrapped in the Remote Data.
    * @param rd The Remote Data with a value that will be applied to the `rdFn`.
+   * @example
+   * SRD.ap(success(x => x * 2), success(4)) // success(8)
    */
   readonly ap: <E, A, B>(rdFn: RD<E, (a: A) => B>, rd: RD<E, A>) => RD<E, B> 
 
@@ -119,12 +135,18 @@ interface RemoteData<F extends URIS2> {
    * Checks if the supplied rd is of type Success, if it is, it returns rd, else it returns def
    * @param def Default Remote Data to return
    * @param rd Remote Data to check
+   * @example
+   * SRD.alt(success(2), success(4)) // success(4)
+   * @example
+   * SRD.alt(success(2), failure('err')) // success(2)
    */
   readonly alt: <E, A>(def: RD<E, A>, rd: RD<E, A>) => RD<E, A>
 
   /**
    * Always returns a Success with `a` inside.
    * @param a Any value
+   * @example
+   * SRD.of(4) // success(4)
    */
   readonly of: <E = never, A = never>(a: A) => RD<E, A>
 
@@ -133,6 +155,8 @@ interface RemoteData<F extends URIS2> {
    * This will only check if the type's are equivalent, not the values inside.
    * @param a Remote Data 1
    * @param b Remote Data 2
+   * @example
+   * SRD.equals(success(4), loading()) // false
    */
   readonly equals: <A extends RD<unknown, unknown>, B extends RD<unknown, unknown>>(a: A, b: B) => boolean
 
@@ -143,6 +167,10 @@ interface RemoteData<F extends URIS2> {
    * @param def Default value that will be returned is fa is not a `Success`.
    * @param f Function to call if fa is a `Success`.
    * @param fa Remote Data of any variant.
+   * @example
+   * SRD.unwrap(5, x => x * 2, success(4)) // 8
+   * @example
+   * SRD.unwrap(5, x => x * 2, failure('msg')) // 5
    */
   readonly unwrap: <E, A, B>(def: B, f: (a: A) => B, fa: RD<E, A>) => B
 
@@ -153,6 +181,10 @@ interface RemoteData<F extends URIS2> {
    * @param def Function to call if fa is anything other than `Success`
    * @param f Function to call if fa is a `Success`.
    * @param fa Remote Data of any variant.
+   * @example
+   * SRD.unpack(() => 5, x => x * 2, success(4)) // 8
+   * @example
+   * SRD.unpack(() => 5, x => x * 2, failure('msg')) // 5
    */
   readonly unpack: <E, A, B>(def: () => B, f: (a: A) => B, fa: RD<E, A>) => B
 
@@ -161,6 +193,10 @@ interface RemoteData<F extends URIS2> {
    * then the default value is returned, otherwise the Success is unwrapped.
    * @param def Default value that will be returned is fa is not a `Success`.
    * @param fa Remote Data of any variant.
+   * @example
+   * SRD.withDefault(5, success(4)) // 4
+   * @example
+   * SRD.withDefault(5, failure('msg')) // 5
    */
   readonly withDefault: <E, A>(def: A, fa: RD<E, A>) => A
 
@@ -168,30 +204,53 @@ interface RemoteData<F extends URIS2> {
    * Utility function to call a function for the specific RemoteData type.
    * @param mapper An object with 4 keys with values that are functions.
    * @param fa The Remote Data to match against.
+   * @example
+   * SRD.match({
+   *   notAsked: () => 'Empty',
+   *   loading: () => 'Loading...',
+   *   failure: msg => `Err: ${msg}`,
+   *   success: data => `Data: ${data}`
+   * }, success(4)) // `Data: 4`
    */
   readonly match: <E, A, G, H, I, J>(mapper: Matcher<E, A, G, H, I, J>, fa: RD<E, A>) => G | H | I | J
 
   /**
    * Check if the rd is of type Success.
    * @param rd Remote Data to check.
+   * @example
+   * SRD.isSuccess(notAsked()) // false
+   * @example
+   * SRD.isSuccess(success(5)) // true
    */
   readonly isSuccess: <E, A>(rd: RD<E, A>) => rd is Success<A>
 
   /**
    * Check if the rd is of type NotAsked.
    * @param rd Remote Data to check.
+   * @example
+   * SRD.isNotAsked(notAsked()) // true
+   * @example
+   * SRD.isNotAsked(success(5)) // false
    */
   readonly isNotAsked: <E, A>(rd: RD<E, A>) => rd is NotAsked
 
   /**
    * Check if the rd is of type Loading.
    * @param rd Remote Data to check.
+   * @example
+   * SRD.isLoading(loading())  // true
+   * @example
+   * SRD.isLoading(success(5)) // true
    */
   readonly isLoading: <E, A>(rd: RD<E, A>) => rd is Loading
 
   /**
    * Check if the rd is of type Failure.
    * @param rd Remote Data to check.
+   * @example
+   * SRD.isFailure(failure('msg')) // true
+   * @example
+   * SRD.isFailure(success(5))     // false
    */
   readonly isFailure: <E, A>(rd: RD<E, A>) => rd is Failure<E>
 }

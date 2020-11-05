@@ -25,6 +25,14 @@ or if you prefer npm
 npm i srd
 ```
 
+or if you don't like bundlers, no need to install, just import directly from a CDN:
+
+```html
+<script type="module">
+  import { SRD } from 'https://cdn.skypack.dev/srd';
+</script>
+```
+
 SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://github.com/umdjs/umd) and [ESM](https://webpack.js.org/guides/ecma-script-modules/) bundle outputs.
 
 ## Examples
@@ -159,7 +167,7 @@ SRD.equals(success(5), notAsked()) // false
 
 ### Functor
 
-Allowing the type to be `mapped` over by the function provided.
+Allowing the `SRD` to be `mapped` over by the function provided.
 
 ```hs
 map :: (a -> b, RD e a) -> RD e b
@@ -306,7 +314,7 @@ SRD.mapFailure(x => `hello ${x}`, failure('bob')) // failure('hello bob')
 
 ### Map2
 
-Similar to `map` but takes 2 `SRD's` instead of one, and if both are a success, the provided callback will be called.
+Similar to `map` but takes 2 `SRD's` instead of one, and if both are a `success`, the provided callback will be called.
 
 ```hs
 map2 :: (a b -> c, RD e a, RD e b) -> RD e c
@@ -322,7 +330,7 @@ SRD.map2((x, y) => x + y, success(8), failure('bob')) // failure('bob')
 
 ### Map3
 
-Similar to `map2` but takes 3 `SRD's` instead of two, and if all three are a success, the provided callback will be called.
+Similar to `map2` but takes 3 `SRD's` instead of two, and if all three are a `success`, the provided callback will be called.
 
 ```hs
 map3 :: (a b c -> d, RD e a, RD e b, RD e c) -> RD e d
@@ -340,7 +348,7 @@ SRD.map3(add3, success(8), loading(), failure('bob'))  // loading()
 
 ### Unwrap
 
-Similar to `alt`, but unwraps the SRD from it's type and runs the callback on it. If the SRD is a success the inner value is passed to the callback and returned, any other value the default is returned.
+Similar to `alt`, but unwraps the SRD from it's type and runs the callback on it. If the SRD is a `success` the inner value is passed to the callback and returned, any other value the default is returned.
 
 ```hs
 unwrap :: (b, a -> b, RD e a) -> b
@@ -376,7 +384,7 @@ SRD.unpack(() => 6, double, loading())  // 6
 
 ### WithDefault
 
-Takes a default value and an SRD. If the SRD is a success then the inner value is returned, otherwise the default value is returned.
+Takes a default value and an SRD. If the SRD is a `success` then the inner value is returned, otherwise the default value is returned.
 
 ```hs
 withDefault :: (a, RD e a) -> a
@@ -388,4 +396,67 @@ import { SRD, success, notAsked, loading } from 'SRD'
 SRD.withDefault(4, success(8)) // 8
 SRD.withDefault(4, notAsked()) // 4
 SRD.withDefault(4, loading())  // 4
+```
+
+### IsSuccess
+
+Takes an SRD and returns a boolean if it is a `success` type.
+
+```hs
+isSuccess :: (RD e a) -> bool
+```
+
+```ts
+import { SRD, success, notAsked } from 'SRD'
+
+SRD.isSuccess(success(8)) // true
+SRD.isSuccess(notAsked()) // false
+```
+
+
+### IsFailure
+
+Takes an SRD and returns a boolean if it is a `failure` type.
+
+```hs
+isFailure :: (RD e a) -> bool
+```
+
+```ts
+import { SRD, success, failure } from 'SRD'
+
+SRD.isFailure(success(8)) // false
+SRD.isFailure(failure())  // true
+```
+
+
+### IsNotAsked
+
+Takes an SRD and returns a boolean if it is a `notAsked` type.
+
+```hs
+isNotAsked :: (RD e a) -> bool
+```
+
+```ts
+import { SRD, success, notAsked } from 'SRD'
+
+SRD.isNotAsked(success(8)) // false
+SRD.isNotAsked(notAsked()) // true
+```
+
+
+### IsLoading
+
+Takes an SRD and returns a boolean if it is a `loading` type.
+
+```hs
+isLoading :: (RD e a) -> bool
+```
+
+```ts
+import { SRD, success, loading } from 'SRD'
+
+SRD.isLoading(success(8)) // false
+SRD.isLoading(loading())  // true
 ```
