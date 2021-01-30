@@ -62,8 +62,6 @@ const App = () => {
 }
 ```
 
-That's it! Very easy to use, and 90% of the time that's everything you will need.
-
 ### Typescript React Example
 
 SRD works even better with Typescript! Declare your RD type once and have typescript powerfully infer it everywhere! Like magic!
