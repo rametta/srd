@@ -39,60 +39,7 @@ SRD supports [CJS](https://requirejs.org/docs/commonjs.html), [UMD](https://gith
 
 ### React Example
 
-The following is a common use case in [React](https://reactjs.org/). Fetching data async, showing it on screen and handling initial, loading, and error states.
-
-Without `SRD`, we would need something like this:
-
-```tsx
-import React, { useState, useEffect } from 'react'
-
-const App = () => {
-  const [asked, setAsked] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [data, setData] = useState(null)
-
-  useEffect(() => {
-    setAsked(true)
-    setLoading(true)
-    fetch('...')
-      .then((data) => {
-        setData(data)
-        setError(false)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setData(null)
-        setError(err)
-        setLoading(false)
-      })
-  }, [])
-
-  if (!asked) {
-    return <div>Empty</div>
-  }
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (error) {
-    return <div>{error}</div>
-  }
-
-  if (data) {
-    return <div>{data}</div>
-  }
-
-  return <div>Something went wrong...</div>
-}
-```
-
-That's a lot of code for something we do very often, and highly error prone if we forget to unset/set some state values.
-
-Here's the SRD way - using only 1 state variable instead of 4, preventing any impossible states:
-
-```tsx
+```jsx
 import React, { useState, useEffect } from 'react'
 import { SRD, notAsked, loading, failure, success } from 'srd'
 
